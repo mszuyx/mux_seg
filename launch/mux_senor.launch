@@ -1,0 +1,24 @@
+<launch>
+
+  <!-- Launch realsense camera-->
+  <include file="$(find realsense2_camera)/launch/rs_multiple_d455_pco.launch"/> 
+
+  <param name="/use_sim_time"        value="false"/>
+ 
+  <!-- Launch range sensors -->
+  <include file="$(find teraranger)/launch/teraranger_mini_duo.launch"/>
+  <include file="$(find ydlidar_ros_driver)/launch/X2_duo.launch"/>
+  
+  <!-- Define sensor placement -->
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_d455_l" args="0.25  0.2365 0.0 0.0  0.0        0.1305262 0.9914449 base_link d455_l_link" /> 
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_d455_r" args="0.25 -0.2365 0.0 0.0 -0.0174026 -0.1305196 0.991293   base_link d455_r_link"/>
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_base_optical_link" args="0.0 0.0 0.0 -0.5 0.5 -0.5 0.5 base_link base_optical_link" /> 
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_teraranger_base_l" args="0.25  0.2365 0.05 0.0  0.0        0.1305262 0.9914449 base_link teraranger_base_1" />  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_teraranger_base_r" args="0.25 -0.2365 0.05 0.0 -0.0174026 -0.1305196 0.991293  base_link teraranger_base_0" />
+  
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_lidar_base_l" args="-0.25  0.25 0.0 3.14159265 0.0 0.0   base_link lidar_base_1" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_lidar_base_r" args="-0.25 -0.25 0.0 3.14159265 0.0 0.0   base_link lidar_base_0" />
+
+</launch>

@@ -1,0 +1,61 @@
+<launch>
+
+  <param name="/use_sim_time"        value="false"/>
+ 
+  <!-- Launch range sensors -->
+
+  <include file="$(find ydlidar_ros_driver)/launch/X2_duo.launch"/>
+  
+  <!-- Define sensor placement -->  
+  <!--<node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_base_optical_link" args="0.0 0.0 0.0 0.5 -0.5 0.5 0.5 base_optical_link base_link" /> --> 
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_lidar_base_l" args="-0.155  0.24 -0.145 0.0 0.0 3.1415927  base_link lidar_base_1" />
+  <node pkg="tf2_ros" type="static_transform_publisher" name="base_link_to_lidar_base_r" args="-0.155 -0.24 -0.078 -0.0349066 0.0 3.1415927  base_link lidar_base_0" />
+
+
+  <!-- Launch the mux_seg range only node -->
+  <node pkg="mux_seg" type="mux_seg_range_only" name="mux_seg_range_only" output="screen">
+    <remap from="/range_in_right"                                  to = "/evo_mini_0/pointcloud" />
+    <remap from="/range_in_left"                                   to = "/evo_mini_1/pointcloud" />
+    <remap from="/lidar_in_right"                                  to = "/ydlidar_0/point_cloud" />
+    <remap from="/lidar_in_left"                                   to = "/ydlidar_1/point_cloud" />
+    
+    <param name="base_frame_id"             type = "string"      value = "base_link" />
+    <param name="right_range_frame_id"      type = "string"      value = "base_range_0" />
+    <param name="left_range_frame_id"       type = "string"      value = "base_range_1" />
+    <param name="right_lidar_frame_id"      type = "string"      value = "laser_frame_0" />
+    <param name="left_lidar_frame_id"       type = "string"      value = "laser_frame_1" />
+    
+    <param name="th_ceil_"                  type = "double"      value = "1.0"/>
+    <param name="th_box_"                   type = "double"      value = "7.0"/>
+    <param name="dead_zone_"                type = "double"      value = "0.24"/>
+    <param name="map_unit_size_"            type = "double"      value = "0.15"/>
+    
+    <param name="compress_z"                type = "bool"      value = "false"/>
+  </node>
+  
+  <!-- Launch the pointcloud to laser node -->
+  <node pkg="pointcloud_to_laserscan" type="pointcloud_to_laserscan_node" name="pointcloud_to_laserscan" output="screen">
+    <remap from="cloud_in"                                       to = "/range_points" />
+    <remap from="scan"                                           to = "/comb_scan" />
+      <rosparam>
+      target_frame: base_link
+      transform_tolerance: 0.01
+      min_height: -1.0
+      max_height: 2.0
+        
+      angle_min: -3.1415926
+      angle_max: 3.1415926
+      angle_increment: 0.01745329251
+      scan_time: 0.025
+      range_min: 0.0
+      range_max: 7.0
+      use_inf: true
+        
+      #concurrency_level affects number of pc queued for processing and the number of threadsused
+      # 0: Detect number of cores
+      # 1: Single threaded
+      # 2: inf : Parallelism level
+      concurrency_level: 0
+    </rosparam>
+  </node>
+</launch>
